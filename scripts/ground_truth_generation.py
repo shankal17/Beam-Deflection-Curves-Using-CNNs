@@ -1,86 +1,72 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def sing(coefficient, x, a): # Singularity functions
-    """returns result of the singularity function for a transverse force
+def deflection(P, x, a, flexural_rigidity): # Singularity functions
+    """returns deflection for the considered beam and transverse force
 
     Parameters
     ----------
+    P : Float
+        transverse force magnitude
     x : ndarray <float>
-        location data that the function is acting on
-    a : float
-        critical point of singularity function
+        Array of location data
+    a: float
+        Location of transverse force on beam
+    flexural_rigidity : float
+        Flexural rigidity of beam
 
     Returns
     -------
-    array
-        output of singularity function    
+    ndarray
+        Array containing beam deflection data
     """
 
-    shear_data = []
-    moment_data = []
+    deflection_data = []
     if isinstance(x, np.ndarray):
         for location in x:
+            common_factor = P/(6*flexural_rigidity)
             if location < a:
-                shear_data.append(0)
-                moment_data.append(0)
+                deflection_data.append((location**2)*common_factor*(3*a - location))
             else:
-                shear_data.append(coefficient)
-                moment_data.append(coefficient*(location - a))
+                deflection_data.append((a**2)*common_factor*(3*location - a))
     else:
-        raise Exception('incompatible type')
+        raise Exception('Incompatible type, only use numpy arrays')
     
-    return shear_data, moment_data
+    return deflection_data
 
-def solve_deflection_curves(x, internal_moment_data, flexural_rigidity):
-    """Calculates the deflection curve for a cantilevered beam
-
-    Parameters
-    ----------
-    x : ndarray <float>
-        location data which the moment is integrated over
-    internal_moment_data : ndarray <float>
-        Internal moments associated with each location in the beam
-    flexural_rigidity : float
-        Flexural reigidity of the beam (constant cross-section)
-    
-    Returns
-    -------
-    ndarray <float>
-        Slope of the deformed beam
-    ndarray <float>
-        Deflections of the deformed beam 
-    """
-
-    integrand = internal_moment_data / flexural_rigidity
-    dx = x[-1] - x[-2]
-    theta = [0] # B.C., slope is zero at the base (cantilevered beam) 
-    for i in range(len(x)-1):
-        additional_area = (dx/2)*(integrand[i]+integrand[i+1])
-        theta.append(theta[-1] + additional)
-    delta = [0] # B.C., deflection is zero at the base (batilevered beam)
-    for i in range(len(x)-1):
-        additional_area = (dx/2)*(theta[i]+theta[i+1])
-        delta.append(delta[-1] + additional_area)
-
-    return theta, delta
-
-def generate_internal_load_data(x, load_vector):
+def generate_deflected_beam(beam, flexural_rigidity):
     """Calculates the internal shear force and bending moment data (cantilevered beam)
 
     Parameters
     ----------
-    x : ndarray <float>
-        location data that the function is acting on
-    load_vector : ndarray <float>
-        Array of transverse forces that correspond to the location data
+    input : ndarray <float>
+        2 channel array where the first is location data and the second is load data
     
     Returns
     -------
     ndarray <float>
-        Array of internal shear force corresponding to each location in "x"
-    ndarray <float>
-        Array of internal bending moments corresponding to each location in "x"
+        Array consisting of 3 channels being location data, load data, deflection curve data
     """
 
-    pass
+    x = beam[0]
+    loads = beam[1]
+    deflection_curve = np.zeros_like(x)
+
+    # Apply principle of superposition
+    for c, coordinate in enumerate(x):
+        location_load = loads[c]
+        deflection_curve += deflection(location_load, x, coordinate, flexural_rigidity)
+    
+    return np.stack((x, loads, deflection_curve))
+
+
+if __name__ == '__main__':
+    x = np.linspace(0, 1, 101)
+    loads = np.zeros_like(x)
+    loads[50] = 2
+    loads[75] = -1.125
+    beam = np.stack((x, loads))
+    # print(generate_deflected_beam(beam, 1e1))
+    plt.plot(x, generate_deflected_beam(beam, 1e1)[2])
+    plt.ylim([-0.005, 0.005])
+    plt.show()
