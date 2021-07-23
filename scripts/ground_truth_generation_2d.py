@@ -91,6 +91,16 @@ def generate_random_beam(length, flexural_rigidity, num_points, load_probability
 
     return deflected_beam
 
+def generate_deformed_beam_single_force(length, flexural_rigidity, num_points, max_force):
+    x = np.linspace(0, length, num=num_points)
+    forces = np.zeros_like(x)
+    force_index = np.random.randint(0, x.shape[0])
+    forces[force_index] = np.random.random()*max_force*2 - max_force
+    beam = np.stack((x, forces))
+    deflected_beam = generate_deflected_beam(beam, flexural_rigidity)
+    
+    return deflected_beam
+
 def plot_deformed_beam(beam, normalize=False, normalize_to=2):
     """Plots deformed beam
 
@@ -126,5 +136,5 @@ def plot_deformed_beam(beam, normalize=False, normalize_to=2):
 
 
 if __name__ == '__main__':
-    beam = generate_random_beam(1, 5, 51, 0.1)
+    beam = generate_deformed_beam_single_force(5, 15, 51, 5)
     plot_deformed_beam(beam, normalize=True, normalize_to=1)
