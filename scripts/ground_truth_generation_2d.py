@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from tqdm import tqdm
+
 def deflection(P, x, a, flexural_rigidity): # Singularity functions
     """returns deflection for the considered beam and transverse force
 
@@ -134,7 +136,13 @@ def plot_deformed_beam(beam, normalize=False, normalize_to=2):
 
     plt.show()
 
+def generate_dataset(beam_length, flexural_rigidity, num_points, max_force, num_samples, base_save_name):
+    for i in tqdm(range(num_samples)):
+        save_name = base_save_name + str(i) +".npy"
+        beam = generate_deformed_beam_single_force(beam_length, flexural_rigidity, num_points, max_force)
+        np.save(save_name, beam)
 
 if __name__ == '__main__':
-    beam = generate_deformed_beam_single_force(5, 15, 51, 5)
-    plot_deformed_beam(beam, normalize=True, normalize_to=1)
+    # beam = generate_deformed_beam_single_force(5, 15, 51, 5)
+    # plot_deformed_beam(beam, normalize=True, normalize_to=1)
+    generate_dataset(10, 15, 51, 5, 10, 'data/beam_')
