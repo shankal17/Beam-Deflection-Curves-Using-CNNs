@@ -94,10 +94,30 @@ def generate_random_beam(length, flexural_rigidity, num_points, load_probability
     return deflected_beam
 
 def generate_deformed_beam_single_force(length, flexural_rigidity, num_points, max_force):
+    """returns final deformed beam from single force
+
+    Parameters
+    ----------
+    length : float
+        Length of the generated beam
+    flexural_rigidity : float
+        Flexural rigidity of the beam
+    num_points: int
+        Number of points in the generated beam
+    max_force : float
+        Maximum magnitude of the transverse force applied
+
+    Returns
+    -------
+    ndarray
+        Array containing beam deflection data
+    """
+
     x = np.linspace(0, length, num=num_points)
     forces = np.zeros_like(x)
     force_index = np.random.randint(0, x.shape[0])
     forces[force_index] = np.random.random()*max_force*2 - max_force
+    # print(forces)
     beam = np.stack((x, forces))
     deflected_beam = generate_deflected_beam(beam, flexural_rigidity)
     
@@ -122,27 +142,60 @@ def plot_deformed_beam(beam, normalize=False, normalize_to=2):
 
     # Normalize if desired
     if normalize:
-        deflection_curve = (normalize_to/(np.amax(np.abs(deflection_curve))+1e-5))*deflection_curve
+        deflection_curve = (normalize_to/(np.amax(np.abs(deflection_curve))+1e-20))*deflection_curve
 
     # Plot the ting
     ax.plot(beam[0], deflection_curve, color='c')
 
     # Set limits
-    ax.set_ylim([-1.5, 1.5])
+    ax.set_ylim([-0.5, 0.5])
 
     # Set Labels
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
+    ax.set_aspect('equal')
 
     plt.show()
 
 def generate_dataset(beam_length, flexural_rigidity, num_points, max_force, num_samples, base_save_name):
+    """Generates a dataset of beams deflected by a single force
+
+    Parameters
+    ----------
+    beam_length : Float
+        Length of the beams
+    flexural_rigidity : float
+        Flexural rigidity of the generated beams
+    num_pionts: int
+        Number of points in each generated beam
+    max_force : float
+        Maximum possible magnitude of the transverse force applied
+    num_samples : int
+        Number of beams to generate
+    base_save_name : string
+        Name to save the beams to. "_i.npy" will be appended
+
+    Returns
+    -------
+    ndarray
+        Array containing beam deflection data
+    """
+
     for i in tqdm(range(num_samples)):
         save_name = base_save_name + str(i) +".npy"
         beam = generate_deformed_beam_single_force(beam_length, flexural_rigidity, num_points, max_force)
         np.save(save_name, beam)
 
 if __name__ == '__main__':
-    # beam = generate_deformed_beam_single_force(5, 15, 51, 5)
-    # plot_deformed_beam(beam, normalize=True, normalize_to=1)
-    generate_dataset(10, 15, 51, 5, 10, 'data/beam_')
+    beam_length = 0.5 # [m]
+    side_length = 0.02 # [m]
+    num_points = 51
+    max_force = 5000 #[N]
+    E = 69e9 # Modulus of elasticity for alloy 1100 [Pa]
+    I = (side_length**4)/12 # Moment of inertia
+
+    # beam = generate_deformed_beam_single_force(beam_length, E*I, num_points, max_force)
+    # plot_deformed_beam(beam)
+    generate_dataset(beam_length, E*I, num_points, max_force, 1000, 'data/train/beam_')
+    generate_dataset(beam_length, E*I, num_points, max_force, 100, 'data/test/beam_')
+
