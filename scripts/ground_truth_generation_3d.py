@@ -143,5 +143,10 @@ def plot_deformed_beam(beam, normalize=False, normalize_to=2):
 
 
 if __name__ == '__main__':
-    beam = generate_random_beam(10, 1200, 101, 0.05)
-    plot_deformed_beam(beam, normalize=True)
+    beam_length = 10 # [m]
+    side_length = 0.04 # [m]
+    num_points = 101
+    E = 69e9 # Modulus of elasticity for alloy 1100 [Pa]
+    I = (side_length**4)/12 # Moment of inertia
+    beam = generate_random_beam(beam_length, E*I, num_points, 0.05)
+    plot_deformed_beam(beam, normalize=False)
