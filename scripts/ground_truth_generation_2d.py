@@ -187,10 +187,10 @@ def generate_dataset(beam_length, flexural_rigidity, num_points, max_force, num_
         np.save(save_name, beam)
 
 if __name__ == '__main__':
-    beam_length = 0.5 # [m]
-    side_length = 0.02 # [m]
-    num_points = 51
-    max_force = 5000 #[N]
+    beam_length = 1 # [m]
+    side_length = 0.04 # [m]
+    num_points = 100
+    max_force = 25000 #[N]
     E = 69e9 # Modulus of elasticity for alloy 1100 [Pa]
     I = (side_length**4)/12 # Moment of inertia
 

@@ -5,7 +5,7 @@ import numpy as np
 from natsort import natsorted
 from torch.utils.data import Dataset
 
-class BeamDataset(Dataset):
+class BeamDataset2d(Dataset):
     """Dataset class for deflected beams
     ...
     
@@ -51,7 +51,11 @@ class BeamDataset(Dataset):
         loaded_beam = np.load(beam_loc)
         loaded_beam = torch.from_numpy(loaded_beam)
 
-        return loaded_beam
+        location_vector = loaded_beam[0]
+        force_vector = loaded_beam[1]
+        deflection_curve = loaded_beam[2]
+
+        return location_vector, force_vector, deflection_curve
 
     def __len__(self):
         """Returns number of beams in the dataset
@@ -68,6 +72,6 @@ class BeamDataset(Dataset):
 
 if __name__ == '__main__':
     # Test to make sure that the dataset can be instantiated
-    data = BeamDataset('data/train', 'train')
+    data = BeamDataset2d('data/train', 'train')
     print(data)
     print(data.__len__())
