@@ -34,6 +34,7 @@ def train_2d_problem(model, train_loader, epochs=20, lr=0.001):
             locations = locations.to(device)
             forces = forces.to(device)
             deflections = deflections.to(device)
+            # print(deflections.shape)
 
             # Zero optimizer gradients
             optimizer.zero_grad()
@@ -60,11 +61,14 @@ def train_2d_problem(model, train_loader, epochs=20, lr=0.001):
 
 
 if __name__ == '__main__':
-    # train()
-    data = BeamDataset2d('data/test', 'test')
-    data_loader = torch.utils.data.DataLoader(data, batch_size=8)
-    data_iterator = iter(data_loader)
-    x, forces, deflection = data_iterator.next()
-    print(x.shape)
+    m = ConvAutoencoder1d()
+
+    data = BeamDataset2d('data/train', 'train')
+    data_loader = torch.utils.data.DataLoader(data, batch_size=1)
+
+    train_2d_problem(m, data_loader)
+    # data_iterator = iter(data_loader)
+    # x, forces, deflection = data_iterator.next()
+    # print(x.shape)
     # print(data.__getitem__(0)[1])
 

@@ -51,11 +51,12 @@ class BeamDataset2d(Dataset):
         loaded_beam = np.load(beam_loc)
         loaded_beam = torch.from_numpy(loaded_beam)
 
-        location_vector = loaded_beam[0]
-        force_vector = loaded_beam[1]
-        deflection_curve = loaded_beam[2]
+        # location_vector = loaded_beam[0]
+        # force_vector = loaded_beam[1]
+        # deflection_curve = loaded_beam[2]
 
-        return location_vector, force_vector, deflection_curve
+        # return location_vector, force_vector, deflection_curve
+        return loaded_beam
 
     def __len__(self):
         """Returns number of beams in the dataset
